@@ -1,47 +1,59 @@
-import 'phaser';
+import "phaser";
+// import GrayScalePipeline from "./GrayScale";
+import CustomPipeline from "./CustomPipeline";
 
-export default class Demo extends Phaser.Scene
-{
-    constructor ()
-    {
-        super('demo');
-    }
+export default class Demo extends Phaser.Scene {
+  private customPipeline!: Phaser.Renderer.WebGL.WebGLPipeline;
+  private accumulatedTime = 0;
 
-    preload ()
-    {
-        this.load.image('logo', 'assets/phaser3-logo.png');
-        this.load.image('libs', 'assets/libs.png');
-        this.load.glsl('bundle', 'assets/plasma-bundle.glsl.js');
-        this.load.glsl('stars', 'assets/starfields.glsl.js');
-    }
+  constructor() {
+    super("demo");
+  }
 
-    create ()
-    {
-        this.add.shader('RGB Shift Field', 0, 0, 800, 600).setOrigin(0);
+  preload() {
+    this.load.image("logo", "assets/phaser3-logo.png");
+    this.load.image("libs", "assets/libs.png");
+    this.load.glsl("bundle", "assets/plasma-bundle.glsl.js");
+    this.load.glsl("stars", "assets/starfields.glsl.js");
 
-        this.add.shader('Plasma', 0, 412, 800, 172).setOrigin(0);
+    const renderer = this.game.renderer as Phaser.Renderer.WebGL.WebGLRenderer;
+    this.customPipeline = renderer.addPipeline(
+      "Custom",
+      new CustomPipeline(this.game)
+    );
+  }
 
-        this.add.image(400, 300, 'libs');
+  create() {
+    this.add.shader("RGB Shift Field", 0, 0, 800, 600).setOrigin(0);
 
-        const logo = this.add.image(400, 70, 'logo');
+    this.add.shader("Plasma", 0, 412, 800, 172).setOrigin(0);
 
-        this.tweens.add({
-            targets: logo,
-            y: 350,
-            duration: 1500,
-            ease: 'Sine.inOut',
-            yoyo: true,
-            repeat: -1
-        })
-    }
+    this.add.image(400, 300, "libs");
+
+    const logo = this.add.image(400, 70, "logo").setPipeline("Custom");
+
+    this.tweens.add({
+      targets: logo,
+      y: 350,
+      duration: 1500,
+      ease: "Sine.inOut",
+      yoyo: true,
+      repeat: -1,
+    });
+  }
+
+  update(): void {
+    this.customPipeline.setFloat1("time", this.accumulatedTime);
+    this.accumulatedTime += 0.005;
+  }
 }
 
 const config = {
-    type: Phaser.AUTO,
-    backgroundColor: '#125555',
-    width: 800,
-    height: 600,
-    scene: Demo
+  type: Phaser.AUTO,
+  backgroundColor: "#125555",
+  width: 800,
+  height: 600,
+  scene: Demo,
 };
 
 const game = new Phaser.Game(config);

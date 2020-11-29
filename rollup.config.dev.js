@@ -62,6 +62,8 @@ export default {
             contentBase: 'dist',
             host: 'localhost',
             port: 10001,
+            // host: '0.0.0.0',
+            // port: 8000,
             headers: {
                 'Access-Control-Allow-Origin': '*'
             }
